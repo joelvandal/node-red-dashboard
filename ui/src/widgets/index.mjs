@@ -2,6 +2,7 @@ import UIButton from './ui-button/UIButton.vue'
 import UIButtonGroup from './ui-button-group/UIButtonGroup.vue'
 import UIChart from './ui-chart/UIChart.vue'
 import UIControl from './ui-control/UIControl.vue'
+import UIDialog from './ui-dialog/UIDialog.vue'
 import UIDropdown from './ui-dropdown/UIDropdown.vue'
 import UIEvent from './ui-event/UIEvent.vue'
 import UIForm from './ui-form/UIForm.vue'
@@ -22,6 +23,7 @@ export {
     UIButtonGroup,
     UIChart,
     UIControl,
+    UIDialog,
     UIDropdown,
     UIEvent,
     UIForm,
@@ -46,6 +48,7 @@ export default {
     'ui-button-group': UIButtonGroup,
     'ui-chart': UIChart,
     'ui-control': UIControl,
+    'ui-dialog': UIDialog,
     'ui-dropdown': UIDropdown,
     'ui-event': UIEvent,
     'ui-form': UIForm,

@@ -1,0 +1,180 @@
+<style>
+</style>
+
+<script type="text/javascript">
+    (function () {
+        RED.nodes.registerType('ui-dialog', {
+            category: RED._('@flowfuse/node-red-dashboard/ui-base:ui-base.label.category'),
+            color: RED._('@flowfuse/node-red-dashboard/ui-base:ui-base.colors.medium'),
+            defaults: {
+                ui: { type: 'ui-base', value: '', required: true },
+                position: { value: 'top right' },
+                colorDefault: { value: true },
+                color: { value: null },
+                displayTime: { value: '3' },
+                showCountdown: { value: true },
+                allowDismiss: { value: 'OK' },
+                dismissText: { value: 'Close' },
+                raw: { value: false },
+                className: { value: '' },
+                name: { value: '' },
+                button: { value: false },
+                buttons: {
+                    value: null
+                }
+		
+            },
+            inputs: 1,
+            outputs: 1,
+            align: 'right',
+            icon: 'font-awesome/fa-window-restore',
+            paletteLabel: 'dialog',
+            label: function () { return this.name || (this.position === 'prompt' ? 'show dialog' : (this.position === 'dialog' ? 'show dialog' : 'show dialog')) },
+            labelStyle: function () { return this.name ? 'node_label_italic' : '' },
+            oneditprepare: function () {
+	    
+                // Buttons Editor
+                function generateButton (i, col) {
+                    const container = $('<li/>', { style: 'background: var(--red-ui-secondary-background, #fff); margin:0; padding:8px 0px 0px; border-bottom: 1px solid var(--red-ui-form-input-border-color, #ccc);' })
+                    const row = $('<div/>').appendTo(container)
+                    $('<div/>', { style: 'padding-top:5px; padding-left:175px;' }).appendTo(container)
+                    $('<div/>', { style: 'padding-top:5px; padding-left:120px;' }).appendTo(container)
+
+                    $('<i style="color: var(--red-ui-form-text-color, #eee); cursor:move; margin-left:3px;" class="node-input-button-handle fa fa-bars"></i>').appendTo(row)
+
+                    $('<input/>', { class: 'node-input-button-key', type: 'text', style: 'margin-left:7px; width:calc(50% - 32px);', placeholder: RED._('@flowfuse/node-red-dashboard/ui-dialog:ui-dialog.label.key'), value: col.key }).appendTo(row)
+                    $('<input/>', { class: 'node-input-button-label', type: 'text', style: 'margin-left:7px; width:calc(50% - 32px);', placeholder: RED._('@flowfuse/node-red-dashboard/ui-dialog:ui-dialog.label.label'), value: col.title }).appendTo(row)
+
+                    const finalSpan = $('<span/>', { style: 'float:right; margin-right:8px;' }).appendTo(row)
+                    const deleteButton = $('<a/>', { href: '#', class: 'editor-button editor-button-small', style: 'margin-top:7px; margin-left:5px;' }).appendTo(finalSpan)
+                    $('<i/>', { class: 'fa fa-remove' }).appendTo(deleteButton)
+
+                    deleteButton.click(function () {
+                        container.css({ background: 'var(--red-ui-secondary-background-inactive, #fee)' })
+                        container.fadeOut(300, function () {
+                            $(this).remove()
+                        })
+                    })
+
+                    $('#node-input-button-container').append(container)
+                }
+
+                $('#node-input-add-button').click(function () {
+                    generateButton($('#node-input-button-container').children().length + 1, {})
+                    $('#node-input-button-container-div').scrollTop($('#node-input-button-container-div').get(0).scrollHeight)
+                })
+
+                for (let i = 0; i < this.buttons?.length; i++) {
+                    const col = this.buttons[i]
+                    generateButton(i + 1, col)
+                }
+
+                $('#node-input-button-container').sortable({
+                    axis: 'y',
+                    handle: '.node-input-button-handle',
+                    cursor: 'move'
+                })
+
+
+                $('#node-input-topic').typedInput({
+                    default: 'str',
+                    typeField: $('#node-input-topicType'),
+                    types: ['str', 'msg', 'flow', 'global']
+                })
+
+                $('#node-input-allowDismiss').on('change', function () {
+                    const allowDismiss = $('#node-input-allowDismiss').is(':checked')
+                    if (allowDismiss) {
+                        $('#node-dialog-dismissText').show()
+                    } else {
+                        $('#node-dialog-dismissText').hide()
+                    }
+                })
+
+                $('#node-input-colorDefault').on('change', function () {
+                    const defaultColor = $('#node-input-colorDefault').is(':checked')
+                    if (defaultColor) {
+                        $('#node-input-color').hide()
+                    } else {
+                        $('#node-input-color').show()
+                    }
+                })
+    
+                // use jQuery UI tooltip to convert the plain old title attribute to a nice tooltip
+                $('.ui-node-popover-title').tooltip({
+                    show: {
+                        effect: 'slideDown',
+                        delay: 150
+                    }
+                })
+            }
+        })
+    })()
+</script>
+
+<script type="text/html" data-template-name="ui-dialog">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-title"><i class="icon-header"></i> Title</label>
+        <input type="text" id="node-input-title" placeholder="Dialog Title">
+    </div>
+    <div class="form-row">
+        <label for="node-input-body"><i class="icon-book"></i> Content</label>
+        <textarea style="height:250px; min-height:100px; width: 70%;" id="node-input-body" rows="5" placeholder="Dialog Body Content"></textarea>
+    </div>
+
+
+    <div class="form-row">
+        <label><i class="fa fa-cog"></i> <span data-i18n="ui-dialog.label.button"></label>
+        <input type="checkbox" id="node-input-allowDismiss" style="display: inline-block; width: auto; vertical-align: top; margin: 0 3px 0 0;"/>
+        <label for="node-input-style" style="width: 70%;" data-i18n="ui-dialog.label.showDismiss"></label>
+    </div>
+
+    <div class="form-row form-row-flex" id="node-dialog-dismissText">
+        <label for="node-input-dismissText"><i class="fa fa-check"></i> Button Label</label>
+        <input type="text" id="node-input-dismissText" placeholder="Close">
+    </div>
+
+    <div class="form-row" style="display:flex;">
+        <label for="node-input-width" style="vertical-align:top"><i class="fa fa-list-alt"></i> <span data-i18n="ui-dialog.label.buttons"></label>
+        <div class="form-row node-input-button-container-row" style="margin-bottom: 0px; width:calc(70% + 15px);">
+            <div id="node-input-buttons-container">
+                <div id="node-input-button-container-div" style="box-sizing:border-box; border-radius:5px; height:257px; padding:5px; border:1px solid var(--red-ui-form-input-border-color, #ccc); overflow-y:scroll; display:inline-block; width: 100%;">
+                    <ol id="node-input-button-container" style="list-style-type:none; margin:0;"></ol>
+                </div>
+                <a href="#" class="editor-button editor-button-small" id="node-input-add-button" style="margin-top:4px;"><i class="fa fa-plus"></i> <span data-i18n="ui-dialog.label.buttons"></span></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-color"><i class="fa fa-paint-brush"></i> Color</label>
+        <div style="display: inline-flex; gap: 8px; align-items: center;">
+            <input type="checkbox" id="node-input-colorDefault" style="width: auto; margin: 0;">
+            <label for="node-input-colorDefault" style="margin: 0; line-height: 34px;">Default</label>
+            <input type="color" id="node-input-color" placeholder="#FFFFFF">
+        </div>
+    </div>
+    <div class="form-row form-row-flex" id="node-toast-raw">
+        <input type="checkbox" id="node-input-raw" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label style="width:auto" for="node-input-raw"> Accept raw HTML/JavaScript input in msg.payload to format popup.</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-className"><i class="fa fa-code"></i> Class</label>
+        <div style="display: inline;">
+            <input style="width: 70%;" type="text" id="node-input-className" placeholder="Optional CSS class name(s)" style="flex-grow: 1;">
+            <a
+                data-html="true"
+                title="Dynamic Property: Send msg.class to append new classes to this widget. NOTE: classes set at runtime will be applied in addition to any class(es) set in the nodes class field."
+                class="red-ui-button ui-node-popover-title"
+                style="margin-left: 4px; cursor: help; font-size: 0.625rem; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; justify-content: center; align-items: center;">
+                <i style="font-family: ui-serif;">fx</i>
+            </a>
+        </div>
+    </div>
+    <div class="form-tips"><b>Note</b>: checking <i>Accept raw HTML/JavaScript</i> can allow injection of code.
+    Ensure the input comes from trusted sources.</span></div>
+</script>

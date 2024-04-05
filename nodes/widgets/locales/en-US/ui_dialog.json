@@ -1,0 +1,17 @@
+{
+    "ui-dialog": {
+        "label": {
+            "group": "Group",
+            "size": "Size",
+            "buttons": "Buttons",
+            "key": "Key",
+            "label": "Label",
+            "button": "button"
+        },
+        "selection": {
+            "none": "None",
+            "checkbox": "Checkboxes",
+            "click": "Click"
+        }
+    }
+}
